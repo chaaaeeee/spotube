@@ -4,15 +4,15 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/chaaaeeee/spotube/internal"
+	"github.com/chaaaeeee/spotube/internal/spotify"
 )
 
 func main() {
 	client := &http.Client{}
 
-	token := GetAccessToken(client)
+	token := spotify.GetAccessToken(client)
 	fmt.Println(token)
-	playlist := getTracks(client, token)
+	playlist := spotify.GetTracks(client, token)
 
-	printTracks(playlist)
+	spotify.PrintTracks(playlist)
 }

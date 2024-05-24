@@ -1,35 +1,17 @@
-package spotify 
+package spotify
 
 import (
-	"net/http"
 	"encoding/json"
 	"fmt"
 	"io"
+	"net/http"
+
+	"github.com/chaaaeeee/spotube/config"
 )
 
-type Playlist struct {
-	Tracks Tracks `json:"tracks"`
-}
 
-type Tracks struct {
-	Items []Item `json:"items"`
-}
-
-type Item struct {
-	Track Track `json:"track"`
-}
-
-type Track struct {
-	Name string `json:"name"`
-	Artists []Artist `json:"artists"`
-}
-
-type Artist struct {
-	Name string `json:"name"`
-}
-
-func getTracks(client *http.Client, token Token) Playlist {
-	playlistUrl := apiUrl + "/playlists/6eYWS7Wy5x46dqND2HYP9S?fields=tracks.items%28track%28name%2C+artists%29%29"
+func GetTracks(client *http.Client, token Token) Playlist {
+	playlistUrl := config.SpotifyAPIBaseURL + "/playlists/6eYWS7Wy5x46dqND2HYP9S?fields=tracks.items%28track%28name%2C+artists%29%29"
 
 	req, err := http.NewRequest("GET", playlistUrl, nil)
 	if err != nil {
@@ -58,7 +40,7 @@ func getTracks(client *http.Client, token Token) Playlist {
 	return playlist
 }
 
-func printTracks(playlist Playlist) {
+func PrintTracks(playlist Playlist) {
 	for _, tracks := range playlist.Tracks.Items {
 		fmt.Println("Title :", tracks.Track.Name)
 		for _, artists := range tracks.Track.Artists {

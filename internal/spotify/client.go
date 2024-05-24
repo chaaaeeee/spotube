@@ -7,6 +7,8 @@ import (
 	"net/url"
 	"io"
 	"encoding/json"
+
+	"github.com/chaaaeeee/spotube/config"
 )
 
 type Token struct {
@@ -17,12 +19,12 @@ type Token struct {
 
 func GetAccessToken(client *http.Client) Token {
 	var token Token
-	authValue := "Basic " + base64.StdEncoding.EncodeToString([]byte(ClientId + ":" + ClientSecret))
+	authValue := "Basic " + base64.StdEncoding.EncodeToString([]byte(config.ClientId + ":" + config.ClientSecret))
 
 	form := url.Values{}
 	form.Add("grant_type", "client_credentials")
 
-	req, err := http.NewRequest("POST", authUrl, strings.NewReader(form.Encode()))
+	req, err := http.NewRequest("POST", config.SpotifyAuthBaseURL, strings.NewReader(form.Encode()))
 	if err != nil {
 		panic(err)
 	}
