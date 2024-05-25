@@ -1,39 +1,43 @@
-package spotify 
+package spotify
 
 import (
-	"strings"
-	"net/http"
+	"context"
 	"encoding/base64"
-	"net/url"
-	"io"
 	"encoding/json"
+	"io"
+	"net/http"
+	"net/url"
+	"strings"
 
-	"github.com/zmb3/spotify/v2"
-	"github.com/chaaaeeee/spotube"
+	"github.com/chaaaeeee/spotube/config"
+	spo "github.com/zmb3/spotify/v2"
 	"golang.org/x/oauth2/clientcredentials"
 )
 
 type Client struct {
-	spotifyClient *spotify.Client
+	spotifyClient *spo.Client
 }
 
-func NewClient(clientID string, clientSecret string) *Client {
+func NewClient() *Client {
 	clientConfig := clientcredentials.Config{
-		ClientID : config.SpotifyClientId,
-		ClientSecret : 
+		ClientID:     config.SpotifyClientId,
+		ClientSecret: config.SpotifyClientSecret,
 	}
 
-	spotifyClient := spotify.New()
+	httpClient := clientConfig.Client(context.Background())
 
-	return &Client{spotifyClient : spotifyClient}
+	spotifyClient := spo.New(httpClient)
+
+	return &Client{spotifyClient: spotifyClient}
 }
 
+/*
 func GetAccessToken(client *http.Client) Token {
 	var token Token
 	authValue := "Basic " + base64.StdEncoding.EncodeToString([]byte(config.SpotifyClientId + ":" + config.SpotifyClientSecret))
 
 	form := url.Values{}
-	form.Add("grant_type", "client_credentials")
+	form.Add("grant_type", "client_credentials") //lmaooo
 
 	req, err := http.NewRequest("POST", config.SpotifyAuthBaseURL, strings.NewReader(form.Encode()))
 	if err != nil {
@@ -52,7 +56,7 @@ func GetAccessToken(client *http.Client) Token {
 	if err != nil {
 		panic(err)
 	}
-	
+
 	err = json.Unmarshal(body, &token)
 	if err != nil {
 		panic(err)
@@ -60,3 +64,5 @@ func GetAccessToken(client *http.Client) Token {
 
 	return token
 }
+
+*/
