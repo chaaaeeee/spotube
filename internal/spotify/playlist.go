@@ -9,9 +9,8 @@ import (
 	"github.com/chaaaeeee/spotube/config"
 )
 
-
-func GetTracks(client *http.Client, token Token) Playlist {
-	playlistUrl := config.SpotifyAPIBaseURL + "/playlists/6eYWS7Wy5x46dqND2HYP9S?fields=tracks.items%28track%28name%2C+artists%29%29"
+func GetTracks(client *http.Client, token Token) PlaylistData {
+	playlistUrl := config.SpotifyAPIBaseURL + "/playlists/3WW6fjWlVL7yzDysqyFoOw?fields=tracks.items%28track%28name%2C+artists%29%29"
 
 	req, err := http.NewRequest("GET", playlistUrl, nil)
 	if err != nil {
@@ -31,7 +30,7 @@ func GetTracks(client *http.Client, token Token) Playlist {
 		panic(err)
 	}
 
-	var playlist Playlist
+	var playlist PlaylistData
 	err = json.Unmarshal(body, &playlist)
 	if err != nil {
 		panic(err)
@@ -40,11 +39,21 @@ func GetTracks(client *http.Client, token Token) Playlist {
 	return playlist
 }
 
-func PrintTracks(playlist Playlist) {
-	for _, tracks := range playlist.Tracks.Items {
-		fmt.Println("Title :", tracks.Track.Name)
+func PrintTracks(playlistData PlaylistData) []string {
+	var playlist []string
+	var music string
+	for _, tracks := range playlistData.Tracks.Items {
 		for _, artists := range tracks.Track.Artists {
-			fmt.Println("Artist :", artists.Name)
+			music = fmt.Sprintf("%s - %s", tracks.Track.Name, artists.Name)
+			break
 		}
+
+		playlist = append(playlist, music)
 	}
+
+	for _, music := range playlist {
+		fmt.Println(music)
+	}
+
+	return playlist
 }

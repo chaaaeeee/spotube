@@ -9,23 +9,10 @@ import (
 	"encoding/json"
 
 	"github.com/zmb3/spotify/v2"
-	"github.com/chaaaeeee/spotube"
-	"golang.org/x/oauth2/clientcredentials"
 )
 
 type Client struct {
-	spotifyClient *spotify.Client
-}
-
-func NewClient(clientID string, clientSecret string) *Client {
-	clientConfig := clientcredentials.Config{
-		ClientID : config.SpotifyClientId,
-		ClientSecret : 
-	}
-
-	spotifyClient := spotify.New()
-
-	return &Client{spotifyClient : spotifyClient}
+	spotify *spotify.Client
 }
 
 func GetAccessToken(client *http.Client) Token {
