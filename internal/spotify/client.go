@@ -2,13 +2,7 @@ package spotify
 
 import (
 	"context"
-	"encoding/base64"
-	"encoding/json"
-	"io"
-	"net/http"
-	"net/url"
-	"strings"
-
+	"fmt"
 	"github.com/chaaaeeee/spotube/config"
 	spo "github.com/zmb3/spotify/v2"
 	"golang.org/x/oauth2/clientcredentials"
@@ -22,47 +16,26 @@ func NewClient() *Client {
 	clientConfig := clientcredentials.Config{
 		ClientID:     config.SpotifyClientId,
 		ClientSecret: config.SpotifyClientSecret,
+		TokenURL: "https://accounts.spotify.com/api/token",
 	}
 
 	httpClient := clientConfig.Client(context.Background())
 
 	spotifyClient := spo.New(httpClient)
+	
+	client := &Client{spotifyClient: spotifyClient}
 
-	return &Client{spotifyClient: spotifyClient}
+	return client
 }
 
-/*
-func GetAccessToken(client *http.Client) Token {
-	var token Token
-	authValue := "Basic " + base64.StdEncoding.EncodeToString([]byte(config.SpotifyClientId + ":" + config.SpotifyClientSecret))
-
-	form := url.Values{}
-	form.Add("grant_type", "client_credentials") //lmaooo
-
-	req, err := http.NewRequest("POST", config.SpotifyAuthBaseURL, strings.NewReader(form.Encode()))
-	if err != nil {
-		panic(err)
-	}
-	req.Header.Add("Authorization", authValue)
-	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-
-	res, err := client.Do(req)
-	if err != nil {
-		panic(err)
-	}
-	defer res.Body.Close()
-
-	body, err := io.ReadAll(res.Body)
+func (c *Client) GetPlaylistTracks() {
+	playlistItems, err := c.spotifyClient.GetPlaylistItems(context.Background(), "0E8fe06Z5G4xWKqwcSCuIC")
 	if err != nil {
 		panic(err)
 	}
 
-	err = json.Unmarshal(body, &token)
-	if err != nil {
-		panic(err)
+	for _, music := range playlistItems.Items {
+		fmt.Println(music.Track.Track.SimpleTrack.Name)
 	}
-
-	return token
 }
 
-*/
