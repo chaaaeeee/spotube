@@ -1,0 +1,79 @@
+package youtube
+
+import (
+	"context"
+	"encoding/json"
+	"fmt"
+	"log"
+	"net/http"
+	"os"
+	"time"
+
+	"golang.org/x/oauth2"
+	"google.golang.org/api/youtube/v3"
+)
+
+var oauthConfig *oauth2.Config
+
+func NewService() {
+	youtube.NewService(context.Background())
+}
+
+func startOAuthFlow() {
+	authURL := oauthConfig.AuthCodeURL("state-token", oauth2.AccessTypeOffline)
+	fmt.Printf("Go to the following URL and authorize the application: \n%v\n", authURL)
+
+	// Start the local server to handle the callback
+	http.HandleFunc("/callback", handleOAuth2Callback)
+	server := &http.Server{Addr: ":8080"}
+	go func() {
+		log.Println("Server started on http://localhost:8080")
+		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatalf("Could not listen on :8080: %v\n", err)
+		}
+	}()
+
+	// Wait for user to finish authorization and stop the server
+	time.Sleep(60 * time.Second) // Adjust the sleep time as necessary
+	if err := server.Shutdown(context.Background()); err != nil {
+		log.Fatalf("Server Shutdown Failed:%+v", err)
+	}
+	log.Println("Server exited")
+}
+
+func handleOAuth2Callback(w http.ResponseWriter, r *http.Request) (*http.Client, error) {
+	ctx := context.Background()
+
+	code := r.URL.Query().Get("code")
+	if code == "" {
+		http.Error(w, "No code in the query string", http.StatusBadRequest)
+		return nil, http.Error
+	}
+
+	token, err := oauthConfig.Exchange(ctx, code)
+	if err != nil {
+		http.Error(w, "Failed to exchange token: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Display the access token to the user
+	fmt.Fprintf(w, "Access Token: %s\n", token.AccessToken)
+	saveToken(token)
+
+	// Optionally, you can use the token to make authenticated requests
+	client := oauthConfig.Client(ctx, token)
+	// Use the client to make authenticated requests to Google APIs
+	return
+}
+
+func saveToken(token *oauth2.Token) {
+	file, err := os.Create("token.json")
+	if err != nil {
+		log.Fatalf("Unable to create file: %v", err)
+	}
+	defer file.Close()
+
+	if err := json.NewEncoder(file).Encode(token); err != nil {
+		log.Fatalf("Unable to encode token to file: %v", err)
+	}
+}
