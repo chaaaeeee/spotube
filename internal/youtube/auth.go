@@ -40,9 +40,7 @@ func NewService(r *http.Request) (*Service, error) {
 
 func SetupConfig() *oauth2.Config {
 	conf := &oauth2.Config{
-		ClientID:     "695816638410-57e60c4tiubt4hnc0obvf4fdstmi38br.apps.googleusercontent.com",
-		ClientSecret: "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",
-		RedirectURL:  "http://localhost:8080/google/callback",
+		RedirectURL: "http://localhost:8080/google/callback",
 		Scopes: []string{
 			"https://www.googleapis.com/auth/youtube",
 			"https://www.googleapis.com/auth/youtube.force-ssl",
